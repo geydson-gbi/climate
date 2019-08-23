@@ -1,6 +1,6 @@
 import React, { Component, Fragment                                } from 'react';
 import { View, Text, StyleSheet, ImageBackground, Image, 
-                                                                   } from 'react-native';
+         TouchableHighlight,  SafeAreaView                         } from 'react-native';
 import   Icon                                                        from 'react-native-vector-icons/FontAwesome';
 import { connect                                                   } from 'react-redux';
 import Geolocation                                                   from 'react-native-geolocation-service';
@@ -88,6 +88,7 @@ export class Home extends Component {
    * Carousel function to set the index and update information conforms to the city of the index.
    */
   nextCity(index) {
+    console.tron.log('index',this.state.slider1ActiveSlide, this.props.citys.length, index);
     this.setState({ slider1ActiveSlide: index });
     this.props.requestClimate(this.props.citys[index].key);
   }
@@ -125,34 +126,75 @@ export class Home extends Component {
               
                 <View style={styles.container}>
                   <View style={styles.content}>
-                    <Carousel
-                      ref={(c) => { this._carousel = c }}
-                      data={this.props.citys}
-                      renderItem={({item}) =>
-                        <View style={styles.circuleToDay}>
-                            <Text  style={{ fontSize : 60, color : '#FFF'}}>{this.props.today}</Text>
-                            <Image style={{ width    : 32, height: 32, marginLeft: 3}} source={returnIconTemp(this.props.iconTempToday)}/>
-                            <Text  style={{ fontSize : 15, top   : 10, color :'#FFF'}}>{this.props.currentDate}</Text>
+                    <SafeAreaView style={styles.safeArea}>
+                      
+                      <TouchableHighlight
+                        underlayColor="transparent"
+                        disabled={ this.state.slider1ActiveSlide != 0 ? false : true }
+                        onPress={
+                          () => this.nextCity(this.state.slider1ActiveSlide - 1)
+                        }>
+                        <Icon 
+                          name='angle-left'   
+                          size={40} 
+                          style={{
+                            color: this.state.slider1ActiveSlide != 0 ? 
+                            'rgba(255, 255, 255, 1)' : 'rgba(255, 255, 255, 0)'
+                          }} 
+                        />
+                      </TouchableHighlight>
+                
+                      <View style={styles.areaCarousel}>
+                        <Carousel
+                          ref={(c) => { this._carousel = c }}
+                          data={this.props.citys}
+                          renderItem={({item}) =>
+                            <View style={styles.circuleToDay}>
+                                <Text  style={{ fontSize : 60, color : '#FFF'}}>{this.props.today}</Text>
+                                <Image style={{ width    : 32, height: 32, marginLeft: 3}} source={returnIconTemp(this.props.iconTempToday)}/>
+                                <Text  style={{ fontSize : 15, top   : 10, color :'#FFF'}}>{this.props.currentDate}</Text>
+                            </View>
+                          }
+                          sliderWidth={250}
+                          itemWidth={250}
+                          onSnapToItem={(index, key) => this.nextCity(index, key) }
+                        />
+
+                        <View style={{justifyContent: 'center'}}>
+                          <Pagination
+                            dotsLength={this.props.citys.length}
+                            activeDotIndex={this.indexCarousel()}
+                            containerStyle={styles.paginationContainer}
+                            dotColor={'rgba(255, 255, 255, 0.92)'}
+                            dotStyle={styles.paginationDot}
+                            inactiveDotColor={"#000000"}
+                            inactiveDotOpacity={0.5}
+                            inactiveDotScale={1.1}
+                            carouselRef={this._slider1Ref}
+                            tappableDots={!!this._slider1Ref}
+                          />
                         </View>
-                      }
-                      sliderWidth={250}
-                      itemWidth={250}
-                      onSnapToItem={(index, key) => this.nextCity(index) }
-                    />
-                    <View style={{justifyContent: 'center'}}>
-                      <Pagination
-                        dotsLength={this.props.citys.length}
-                        activeDotIndex={this.indexCarousel()}
-                        containerStyle={styles.paginationContainer}
-                        dotColor={'rgba(255, 255, 255, 0.92)'}
-                        dotStyle={styles.paginationDot}
-                        inactiveDotColor={"#000000"}
-                        inactiveDotOpacity={0.4}
-                        inactiveDotScale={0.6}
-                        carouselRef={this._slider1Ref}
-                        tappableDots={!!this._slider1Ref}
-                      />
-                    </View>
+                      </View>
+                      
+                      <TouchableHighlight
+                        underlayColor="transparent"
+                        disabled={ 
+                          this.props.citys.length-1 > this.state.slider1ActiveSlide ? false : true 
+                        }
+                        onPress={
+                            () => this.nextCity(this.state.slider1ActiveSlide + 1)
+                        }>
+                        <Icon 
+                          name='angle-right' 
+                          size={40} 
+                          style={{
+                            color: this.props.citys.length-1 > this.state.slider1ActiveSlide ? 
+                            'rgba(255, 255, 255, 1)' : 'rgba(255, 255, 255, 0)' 
+                          }} 
+                        />
+                      </TouchableHighlight>
+              
+                    </SafeAreaView>
                   </View>
                   <ClockAreaDays /> 
                 </View>
@@ -195,12 +237,21 @@ const styles = StyleSheet.create({
   },
   content : {
     top             : -100, 
-    width           : 200, 
+    //width           : 200, 
+    width           : '100%',
     height          : 200,  
     justifyContent  : 'center',
     alignItems      : 'center', 
-    borderRadius    : 100, 
-    backgroundColor : 'rgba( 8, 18, 26, 0.4 )',
+  },
+  areaCarousel : {
+    width            : 200, 
+    height           : 200,  
+    marginLeft       : 25,
+    marginRight      : 25,
+    justifyContent   : 'center',
+    alignItems       : 'center', 
+    borderRadius     : 100, 
+    backgroundColor  : 'rgba( 8, 18, 26, 0.4 )',
   },
   circuleToDay : {
     width           : '100%',
@@ -217,7 +268,14 @@ const styles = StyleSheet.create({
       height            : 8,
       borderRadius      : 4,
       marginHorizontal  : 8
-  }
+  },
+  safeArea  : {
+    flex            : 1,
+    flexDirection   : 'row',
+    alignItems      : 'center',
+    justifyContent  : 'center',
+    width           : '100%'
+  },
 });
 
 const mapStateToProps = (state) => {
