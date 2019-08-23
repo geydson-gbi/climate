@@ -21,6 +21,10 @@ export class AddCity extends Component {
     this.searchBoxClick = this.searchBoxClick.bind(this);
   }
 
+  /**
+   * Adds the chosen city for the props and updating it
+   * @param {array} item 
+   */
   searchBoxClick(item) {
     this.props.addCity({
       key       : item.woeid, 
@@ -29,6 +33,10 @@ export class AddCity extends Component {
     });
   }
 
+  /**
+   * Function that removes the city as the id passed and updates the props.
+   * @param {number} idCity 
+   */
   async removeCitys(idCity) {
     let citys = this.props.cities;
     this.props.removeCity(citys, idCity);
@@ -42,6 +50,10 @@ export class AddCity extends Component {
     }
   }
 
+  /**
+   * Function sets city as favorite by past id and directs to main screen displaying information of respective city.
+   * @param {number} idCity 
+   */
   async favoriteCitys(idCity) {
     let citys = this.props.cities;
     this.props.loadingTrue();
@@ -58,6 +70,10 @@ export class AddCity extends Component {
     }
   }
 
+  /**
+   * Function that returns to main screen
+   * @param {boolean} value 
+   */
   async backHome(value = false) {
     this.props.loadingTrue();
     if(await statusConnect()) {

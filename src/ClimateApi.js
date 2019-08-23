@@ -5,6 +5,10 @@ import LocationServicesDialogBox                  from 'react-native-android-loc
 import { measureConnectionSpeed                 } from 'react-native-network-bandwith-speed';
 import NetInfo                                    from "@react-native-community/netinfo";
 
+/**
+ * Call from api, to get the weather information, according to the id of the city searched.
+ * @param {number} idCity 
+ */
 export const timeApi = function( idCity ) {
     return new Promise( function( resolve, reject ) {
         Axios.get(`https://www.metaweather.com/api/location/${idCity}/`)
@@ -17,6 +21,11 @@ export const timeApi = function( idCity ) {
     });
 };
 
+/**
+ * Searches for the nearest city or cities for past latitude and longitude.
+ * @param {number} lat 
+ * @param {number} long 
+ */
 export const cityIdApi = function( lat, long ) {
     return new Promise( function( resolve, reject ) {
         Axios.get(`https://www.metaweather.com/api/location/search/?lattlong=${lat},${long}`)
@@ -35,6 +44,10 @@ export const cityIdApi = function( lat, long ) {
     });
 };
 
+/**
+ * Searches for the city entered by the last name.
+ * @param {string} locText 
+ */
 export const makeLocationSearch = function( locText ) {
     return new Promise(function(resolve, reject){
         Axios.get(`https://www.metaweather.com/api/location/search/?query=${locText}`)
@@ -52,6 +65,9 @@ export const makeLocationSearch = function( locText ) {
     });
 };
 
+/**
+ * Requests permission to access device location.
+ */
 export const requestLocPermission = async () => {
     if( Platform.OS == 'android') {
         try {
@@ -71,6 +87,10 @@ export const requestLocPermission = async () => {
     }
 };
 
+/**
+ * Returns the time icon.
+ * @param {sting} icon 
+ */
 export const returnIconTemp = function( icon ) {
     switch(icon) {
         case 'c': 
@@ -108,6 +128,10 @@ export const returnIconTemp = function( icon ) {
     }
 };
 
+/**
+ * Returns the background image.
+ * @param {string} icon 
+ */
 export const returnImageBk = function( icon ) {
     switch(icon) {
         case 'c': 
@@ -145,6 +169,12 @@ export const returnImageBk = function( icon ) {
     }
 };
 
+/**
+ * Animates the area showing the 7 days of city time when assembling the component, with the values ​​received
+ * @param {number} clockAreaBottom 
+ * @param {number} iconBottom 
+ * @param {number} itensMount 
+ */
 export const animatedDidMount = function( clockAreaBottom, iconBottom, itensMount ) {
     if(itensMount != 0) {
         return Animated.parallel([ 
@@ -171,6 +201,12 @@ export const animatedDidMount = function( clockAreaBottom, iconBottom, itensMoun
     }
 };
 
+/**
+ * Animates the area showing the 7 days of city time when updating a component, with the received values ​​contacting if the array values.
+ * @param {array} prevProps 
+ * @param {number} clockAreaBottom 
+ * @param {number} iconBottom 
+ */
 export const animatedWillReceiveProps = function( prevProps, clockAreaBottom, iconBottom ) {
     if(prevProps.nextPredictions != 0) {
         return Animated.parallel([ 
@@ -197,6 +233,11 @@ export const animatedWillReceiveProps = function( prevProps, clockAreaBottom, ic
     }
 };
 
+/**
+ * Function for custom alert display
+ * @param {string} title 
+ * @param {strin} msg 
+ */
 export const alertPersonalize = function( title, msg ) {
    return Alert.alert(
     title,
@@ -213,6 +254,9 @@ export const alertPersonalize = function( title, msg ) {
     );
 };
 
+/**
+ * Function that checks if GPS is disabled, if it takes you to the screen to enable it.
+ */
 export const verifyGpsActive = function() {
     return new Promise(function(resolve, reject){
         LocationServicesDialogBox.checkLocationServicesIsEnabled({
@@ -240,6 +284,9 @@ export const verifyGpsActive = function() {
     });
 };
 
+/**
+ * Function that checks data transmission if you have internet or not, returning your connection band or false if you have no internet connection.
+ */
 const getNetworkBandwidth = function() {
     return new Promise( async (resolve, reject) => {
         try {
@@ -251,6 +298,9 @@ const getNetworkBandwidth = function() {
     });
 };
 
+/**
+ * Function that returns the status of the connection, true if it has and false if it does not.
+ */
 export const statusConnect = async function() {
 
     let status = false;

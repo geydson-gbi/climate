@@ -44,6 +44,9 @@ export class Home extends Component {
     }
   }
 
+  /**
+   * Check if you have permission to pick up the location or will ask if you have follow the steps to bring the information and update it.
+   */
   getCurrentLocation = async () => {
     if(await requestLocPermission()) {
       this.props.loadingTrue();
@@ -73,16 +76,25 @@ export class Home extends Component {
     }
   };
 
+  /**
+   * Api call and after getting the answer updates the information in the props, if successful.
+   */
   async locationApi(lat, long) {
     let idCity = await cityIdApi(lat, long);
     this.props.requestClimate(idCity);
   }
 
+  /**
+   * Carousel function to set the index and update information conforms to the city of the index.
+   */
   nextCity(index) {
     this.setState({ slider1ActiveSlide: index });
     this.props.requestClimate(this.props.citys[index].key);
   }
 
+  /**
+   * Function to correctly set the city position in the carousel.
+   */
   indexCarousel(){
     this.props.citys.forEach((element, index) => {                
       if(element.key == this.props.idCity && this.state.slider1ActiveSlide != index){

@@ -16,6 +16,10 @@ export default class SearchBox extends Component {
         this.doSearch = this.doSearch.bind(this);
     }
 
+    /**
+     * Defines the city search text in state txt and clears the results if it has one, and after that calls the function to search the cities according to the text entered.
+     * @param {string} text 
+     */
     txtFill(text) {
         this.setState({txt:text, results: []});
 
@@ -26,6 +30,9 @@ export default class SearchBox extends Component {
         this.timer = setTimeout(this.doSearch, 1000);
     }
 
+    /**
+     * Make API call as city searches.
+     */
     doSearch() {
         let txt = this.state.txt.toLowerCase();
         if( txt == 'sao paulo')
@@ -40,6 +47,9 @@ export default class SearchBox extends Component {
             });
     }
 
+    /**
+     * Inserts the city selects in the props and clears the states.
+     */
     selectCity = (item) => {
         this.props.dataClick(item);
         this.setState({ results: [], txt: '' })

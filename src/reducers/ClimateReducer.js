@@ -20,6 +20,9 @@ const ClimateReducer = ( state = initialState, action ) => {
             let nextPredictions  = action.payload.nextPredictions;
             let arrayPredictions = [];
 
+            /**
+             * Handling information before it is presented.
+             */
             nextPredictions.map((elemento, index) => {
                 arrayPredictions[index] = [ 
                     Moment(elemento.applicable_date).format('DD'),

@@ -38,6 +38,9 @@ export class ClockAreaDays extends Component {
         animatedWillReceiveProps(prevProps, this.state.clockAreaBottom, this.state.iconBottom);
     }
 
+    /**
+     * Show or hide area with last 7 days forecast information.
+     */
     showFade() {
         if(this.state.verify) {
             Animated.parallel([ 
@@ -67,6 +70,9 @@ export class ClockAreaDays extends Component {
         }
     }
 
+    /**
+     * Updates screen information according to city already selected.
+     */
     async refreshInfo() {
         this.props.loadingTrue();
         if(await statusConnect()) {
