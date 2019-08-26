@@ -29,6 +29,16 @@ export const favoriteCity = (citys, idCity) => {
     };
 };
 
+export const removeFavoriteCity = (citys, idCity) => {
+    return {
+        type: 'REMOVE_FAVORITE_CITY',
+        payload : {
+            citys    : citys,
+            idCity   : idCity,
+        }
+    };
+};
+
 export const favoriteCityNotConnection = (citys, idCity) => {
     return {
         type: 'FAVORITE_CITY_NOT_CONNECTION',

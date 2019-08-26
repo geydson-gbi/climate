@@ -102,7 +102,7 @@ export class ClockAreaDays extends Component {
         );
         return (
             <>
-            <Animated.View style={[ styles.containerOption,{ bottom: this.state.iconBottom} ]}>
+            <Animated.View style={[ styles.containerOption,{ bottom: this.props.nextPredictions.length != 0 ? this.state.iconBottom : 35} ]}>
                 <View style={{flexDirection : 'row', justifyContent:'space-around', width: '100%'}}>
                     {
                         this.props.nextPredictions.length != 0 &&

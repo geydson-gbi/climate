@@ -33,6 +33,8 @@ const CitiesReducer = ( state = initialState, action ) => {
                 } 
             });
 
+            console.tron.log([...cities])
+
             return { ...state, 
                 citys          : [...cities],
                 load           : false,
@@ -74,6 +76,24 @@ const CitiesReducer = ( state = initialState, action ) => {
                 citys         : [...arrayCitys],
                 load          : false,
                 favoriteCity  : favorite,
+            };
+        
+        case 'REMOVE_FAVORITE_CITY':
+            let allCitys = action.payload.citys;
+            let remove   = action.payload.idCity;
+
+            allCitys.some((elem) => {
+                if(elem.key == remove) {
+                    elem.favorite = false;
+                } 
+            });
+
+            console.tron.log(allCitys);
+
+            return { ...state, 
+                citys         : [...allCitys],
+                load          : false,
+                favoriteCity  : '',
             };
         
         default:

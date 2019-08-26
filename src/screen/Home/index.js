@@ -9,7 +9,10 @@ import Carousel, { Pagination                                      } from 'react
 
 import   ClockAreaDays                                               from '../../component/ClockAreaDays';
 import   Loading                                                     from '../../component/Loading';
+import   Tooltips                      from '../../component/Tooltips';
 import { requestClimate, requestGPS, loadingTrue, loadingFalse     } from '../../actions/ClimateAction';
+import { favoriteCity, favoriteCityNotConnection, 
+         removeFavoriteCity                                        } from '../../actions/CitiesActions';
 import { returnIconTemp, requestLocPermission, cityIdApi, 
          verifyGpsActive, statusConnect, alertPersonalize, 
          returnImageBk                                             } from '../../ClimateApi';
@@ -19,10 +22,9 @@ export class Home extends Component {
       super(props);
       this.state = {
         slider1ActiveSlide : 0,
-        isConnected        : false,
       }
       this.getCurrentLocation = this.getCurrentLocation.bind(this);
-      this.nextCity           = this.nextCity.bind(this);  
+      this.nextCity           = this.nextCity.bind(this);   
   }
   
   async componentWillMount() {
@@ -63,8 +65,16 @@ export class Home extends Component {
             { enableHighAccuracy:true, timeout: 10000, maximumAge: 10000}
           );
         } else {
-          this.props.requestGPS(false);
-          this.props.requestClimate(this.props.idCity);
+          if(this.props.favoriteCity == false) {
+            if (!this.props.idCity) {
+              this.props.loadingFalse();
+              Actions.AddCity();
+            } else {
+              this.props.requestClimate(this.props.idCity);
+            }
+          } else {
+            this.props.requestClimate(this.props.favoriteCity);
+          } 
         }
       } else {
         this.props.loadingFalse();
@@ -85,41 +95,63 @@ export class Home extends Component {
   }
 
   /**
+   * Function sets city as favorite by past id and directs to main screen displaying information of respective city.
+   *
+   */
+  async favoriteCitys() {
+    let citys  = this.props.citys;
+    let idCity = this.props.idCity;
+    this.props.loadingTrue();
+
+    if(this.props.favoriteCity != idCity){
+      if(await statusConnect()) {
+        this.props.favoriteCitie(citys, idCity);
+        this.props.requestClimate(idCity);
+      } else {
+        this.props.favoriteCityNotConnection(citys, idCity);
+        this.props.loadingFalse();
+      }
+    } else {
+      this.props.removeFavoriteCity(citys, idCity);
+      this.props.loadingFalse();
+    }
+  }
+
+  /**
    * Carousel function to set the index and update information conforms to the city of the index.
    */
   nextCity(index) {
-    console.tron.log('index',this.state.slider1ActiveSlide, this.props.citys.length, index);
     this.setState({ slider1ActiveSlide: index });
     this.props.requestClimate(this.props.citys[index].key);
   }
 
-  /**
-   * Function to correctly set the city position in the carousel.
-   */
-  indexCarousel(){
+  render() {
     this.props.citys.forEach((element, index) => {                
       if(element.key == this.props.idCity && this.state.slider1ActiveSlide != index){
-         this.setState({slider1ActiveSlide: index})
+         this.setState({slider1ActiveSlide: index});
       }
-    })
-    return this.state.slider1ActiveSlide;
-  }
-  
-  render() {
+    });
+
+    const { slider1ActiveSlide } = this.state;
+   
     return (
         <Fragment>
             <ImageBackground style={styles.image} source={returnImageBk(this.props.iconTempToday ? this.props.iconTempToday : '' )}>
                 <View style={styles.navBar}>
                     <View style={{flex: 1, alignItems: 'flex-end'}}>
+                  
                       <Icon name='map-marker' size={30} style={styles.iconMarker} onPress={this.getCurrentLocation} />
+                      {/* <Tooltips/> */}
                     </View>
                     <View style={{flex: 2, alignItems: 'center'}}>
-                      <Text style={styles.textNavBar}>{this.props.city && this.props.idCity ? this.props.city : this.props.notConect}</Text>
+                      <Text style={styles.textNavBar}>
+                        {this.props.city && this.props.idCity ? this.props.city : this.props.city ? this.props.city : this.props.notConect}
+                      </Text>
                     </View>
                     <View style={{flex: 1}}>
                       {
                         this.props.idCity.length > 0 || this.props.idCity != '' &&
-                        <Icon name='star' size={22} style={[styles.iconMarker,{ left: 10, color: this.props.favoriteCity && this.props.favoriteCity == this.props.idCity ? 'yellow' : '#FFFFFF' }]} />
+                        <Icon name='star' size={22} style={[styles.iconMarker,{ left: 10, color: this.props.favoriteCity && this.props.favoriteCity == this.props.idCity ? 'yellow' : '#FFFFFF' }]} onPress={()=> this.favoriteCitys()} />
                       }
                     </View>
                 </View>
@@ -146,9 +178,9 @@ export class Home extends Component {
                 
                       <View style={styles.areaCarousel}>
                         <Carousel
-                          ref={(c) => { this._carousel = c }}
+                          ref={ref => this.carousel = ref}
                           data={this.props.citys}
-                          renderItem={({item}) =>
+                          renderItem={({item }) =>
                             <View style={styles.circuleToDay}>
                                 <Text  style={{ fontSize : 60, color : '#FFF'}}>{this.props.today}</Text>
                                 <Image style={{ width    : 32, height: 32, marginLeft: 3}} source={returnIconTemp(this.props.iconTempToday)}/>
@@ -157,13 +189,14 @@ export class Home extends Component {
                           }
                           sliderWidth={250}
                           itemWidth={250}
-                          onSnapToItem={(index, key) => this.nextCity(index, key) }
+                          onSnapToItem={(index) => this.nextCity(index) }
+                          firstItem={slider1ActiveSlide}
                         />
 
                         <View style={{justifyContent: 'center'}}>
                           <Pagination
                             dotsLength={this.props.citys.length}
-                            activeDotIndex={this.indexCarousel()}
+                            activeDotIndex={slider1ActiveSlide}
                             containerStyle={styles.paginationContainer}
                             dotColor={'rgba(255, 255, 255, 0.92)'}
                             dotStyle={styles.paginationDot}
@@ -300,6 +333,9 @@ const mapDispatchToProps = dispatch => ({
   requestGPS    : (load)    => dispatch(requestGPS(load)),
   loadingTrue   : ()        => dispatch(loadingTrue()),
   loadingFalse  : ()        => dispatch(loadingFalse()),
+  favoriteCitie : (cities, idCity) => dispatch(favoriteCity(cities, idCity)),
+  favoriteCityNotConnection : (cities, idCity) => dispatch(favoriteCityNotConnection(cities, idCity)),
+  removeFavoriteCity        : (cities, idCity) => dispatch(removeFavoriteCity(cities, idCity)),
 });
 
 const HomeConnect = connect(mapStateToProps, mapDispatchToProps)(Home);

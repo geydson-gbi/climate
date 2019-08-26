@@ -1,7 +1,7 @@
 import React, { Component, Fragment                } from 'react';
 import { View, Text, StyleSheet, 
   ImageBackground, ScrollView, FlatList, 
-  TouchableHighlight                               } from 'react-native';
+                                                   } from 'react-native';
 import Icon                                          from 'react-native-vector-icons/FontAwesome';
 import { connect                                   } from 'react-redux';
 import { Actions                                   } from 'react-native-router-flux';
@@ -9,7 +9,7 @@ import { Actions                                   } from 'react-native-router-f
 import Loading                                       from '../../component/Loading';
 import SearchBox                                     from '../../component/SearchBox';
 import { addCity, removeCity, favoriteCity, 
-          favoriteCityNotConnection                } from '../../actions/CitiesActions';
+         favoriteCityNotConnection, removeFavoriteCity } from '../../actions/CitiesActions';
 import { requestClimate, loadingTrue, loadingFalse } from '../../actions/ClimateAction';
 import { statusConnect, returnImageBk              } from '../../ClimateApi';
 
@@ -44,7 +44,11 @@ export class AddCity extends Component {
     arrayTam    = arrayTam.length;
     this.props.loadingTrue();
     if(await statusConnect()) {
-      this.props.requestClimate(this.props.cities[arrayTam != 0 ? arrayTam - 1 : 0].key);
+      if(arrayTam != 0){
+        this.props.requestClimate(this.props.cities[arrayTam - 1].key);
+      } else {
+        this.props.loadingFalse();
+      }
     } else {
       this.props.loadingFalse();
     }
@@ -57,15 +61,20 @@ export class AddCity extends Component {
   async favoriteCitys(idCity) {
     let citys = this.props.cities;
     this.props.loadingTrue();
-    if(await statusConnect()) {
-      this.props.favoriteCity(citys, idCity);
+    if(this.props.favoriteCity != idCity){
+      if(await statusConnect()) {
+        this.props.favoriteCitie(citys, idCity);
 
-      setTimeout(function(){
-        Actions.pop();
-      }, 1000);
+        setTimeout(function(){
+          Actions.pop();
+        }, 1000);
 
+      } else {
+        this.props.favoriteCityNotConnection(citys, idCity);
+        this.props.loadingFalse();
+      }
     } else {
-      this.props.favoriteCityNotConnection(citys, idCity);
+      this.props.removeFavoriteCity(citys, idCity);
       this.props.loadingFalse();
     }
   }
@@ -116,12 +125,12 @@ export class AddCity extends Component {
                     renderItem={({item})=> 
                       <View style={styles.citys}>
                         <Icon name='star' size={24} style={[styles.iconReturn, {marginLeft: 10, marginRight: 10, color: item.favorite ? 'yellow' : 'white' }]} onPress={() => this.favoriteCitys(item.key)} />
-                        <TouchableHighlight style={{position: 'absolute', left: 45, alignSelf: 'center'}} onPress={() => this.backHome(item.key)} underlayColor="#000000">
-                           <Text style={{ color: '#FFFFFF', fontSize: 18 }}>{item.titleCity}</Text>
-                        </TouchableHighlight>
+                        <Text underlayColor="#000000" style={{ color: '#FFFFFF', fontSize: 18, flexGrow: 1 }}  onPress={() => this.backHome(item.key)}>
+                          {item.titleCity}
+                        </Text>
                         {
                           !item.favorite && 
-                          <Icon name='trash' size={24} style={[styles.iconReturn, {marginRight: 10}]} onPress={() => this.removeCitys(item.key)} />
+                          <Icon name='trash' size={24} style={[styles.iconReturn, {marginRight: 10, marginLeft: 10}]} onPress={() => this.removeCitys(item.key)} />
                         }
                       </View>
                     } 
@@ -191,7 +200,7 @@ const mapStateToProps = (state) => {
   return {
     cities         : state.cities.citys,
     load           : state.cities.load,
-    favoriteCity   : state.cities.load,
+    favoriteCity   : state.cities.favoriteCity,
     idCity         : state.climate.idCity,
     iconTempToday  : state.climate.iconTempToday,
   };
@@ -200,8 +209,9 @@ const mapStateToProps = (state) => {
 const mapDispatchToProps = dispatch => ({
   addCity       : (city)           => dispatch(addCity(city)),
   removeCity    : (cities, idCity) => dispatch(removeCity(cities, idCity)),
-  favoriteCity  : (cities, idCity) => dispatch(favoriteCity(cities, idCity)),
+  favoriteCitie : (cities, idCity) => dispatch(favoriteCity(cities, idCity)),
   favoriteCityNotConnection : (cities, idCity) => dispatch(favoriteCityNotConnection(cities, idCity)),
+  removeFavoriteCity        : (cities, idCity) => dispatch(removeFavoriteCity(cities, idCity)),
   requestClimate: (idCity)         => dispatch(requestClimate(idCity)),
   loadingTrue   : ()               => dispatch(loadingTrue()),
   loadingFalse  : ()               => dispatch(loadingFalse()),

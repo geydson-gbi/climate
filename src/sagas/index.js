@@ -77,10 +77,21 @@ function* setFavoriteCity(action) {
    });
 }
 
+function* removeCity(action) {
+   yield put({
+      type    : "CLIMATE_REMOVE_CITY", 
+      payload : { 
+         cities    : action.payload.citys,
+         idCity    : action.payload.idCity,
+      }
+   });
+}
+
  function* Sagas() {
    yield takeEvery( "CLIMATE_FETCH_REQUESTED", fetchClimate );
    yield takeEvery( "REQUEST_GPS_NOT", fetchNoGPS           );
    yield takeEvery( "FAVORITE_CITY", setFavoriteCity        );
+   yield takeEvery( "REMOVE_CITY", removeCity               );
 }
 
 export default function* Root(){

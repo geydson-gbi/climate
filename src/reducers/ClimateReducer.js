@@ -60,6 +60,36 @@ const ClimateReducer = ( state = initialState, action ) => {
                 notConect        : 'Sem conexão...'
             };
         
+        case 'CLIMATE_REMOVE_CITY':
+            let cities    = action.payload.cities;
+            let idCity    = action.payload.idCity;
+    
+            cities.some((elem, index) => {
+                if(elem.key == idCity) {
+                    cities.splice(index, 1); 
+                } 
+            });
+
+            let arrayCities = [...cities];
+         
+            if(arrayCities.length > 0) {
+                return { ...state, 
+                    load           : false,
+                };
+            } else {
+                return { ...state,
+                    idCity          : '',
+                    today           : '...',
+                    currentTime     : '',
+                    currentDate     : '',
+                    city            : 'Busque uma cidade...', 
+                    iconTempToday   : '',
+                    nextPredictions : [],
+                    load            : false,
+                    favoriteCity    : '',
+                };
+            }
+        
         default:
             return state;
 
