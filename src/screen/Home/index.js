@@ -9,7 +9,6 @@ import Carousel, { Pagination                                      } from 'react
 
 import   ClockAreaDays                                               from '../../component/ClockAreaDays';
 import   Loading                                                     from '../../component/Loading';
-import   Tooltips                      from '../../component/Tooltips';
 import { requestClimate, requestGPS, loadingTrue, loadingFalse     } from '../../actions/ClimateAction';
 import { favoriteCity, favoriteCityNotConnection, 
          removeFavoriteCity                                        } from '../../actions/CitiesActions';
@@ -141,7 +140,7 @@ export class Home extends Component {
                     <View style={{flex: 1, alignItems: 'flex-end'}}>
                   
                       <Icon name='map-marker' size={30} style={styles.iconMarker} onPress={this.getCurrentLocation} />
-                      {/* <Tooltips/> */}
+                  
                     </View>
                     <View style={{flex: 2, alignItems: 'center'}}>
                       <Text style={styles.textNavBar}>
